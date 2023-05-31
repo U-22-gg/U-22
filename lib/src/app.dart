@@ -28,8 +28,8 @@ class MyStatefulWidget extends StatefulWidget {
 
 class _MyStatefulWidgetState extends State<MyStatefulWidget> {
   static const _screens = [
-    LedgerPageScreen(),
     ReportPageScreen(),
+    LedgerPageScreen(),
     MakeFileScreen(),
     AdvancedSettingScreen()
   ];
@@ -51,9 +51,9 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
           onTap: _onItemTapped,
           items: const <BottomNavigationBarItem>[
             BottomNavigationBarItem(
-                icon: Icon(Icons.auto_stories), label: '帳簿記入'),
-            BottomNavigationBarItem(
                 icon: Icon(Icons.contact_page), label: 'レポート'),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.auto_stories), label: '帳簿記入'),
             BottomNavigationBarItem(
                 icon: Icon(Icons.upload_file), label: '書類作成'),
             BottomNavigationBarItem(icon: Icon(Icons.settings), label: '詳細設定'),
