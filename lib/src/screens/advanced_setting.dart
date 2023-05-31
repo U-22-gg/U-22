@@ -7,7 +7,10 @@ class AdvancedSettingScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('詳細設定'),
+        title: const Text(
+          '詳細設定',
+          style: TextStyle(fontFamily: 'NotoSansJP'),
+        ),
         actions: [
           IconButton(
             onPressed: () => {},
@@ -17,8 +20,9 @@ class AdvancedSettingScreen extends StatelessWidget {
           ),
         ],
       ),
-      body:
-          const Center(child: Text('詳細設定画面', style: TextStyle(fontSize: 32.0))),
+      body: const Center(
+          child: Text('詳細設定画面',
+              style: TextStyle(fontSize: 32.0, fontFamily: 'NotoSansJP'))),
     );
   }
 }
