@@ -10,6 +10,7 @@ class LedgerPageScreen extends StatelessWidget {
       length: 4, // タブの数
       child: Scaffold(
         appBar: AppBar(
+          title: const Text('帳簿記入'),
           actions: [
             IconButton(
               onPressed: () => {},
@@ -18,7 +19,6 @@ class LedgerPageScreen extends StatelessWidget {
               ),
             ),
           ],
-          title: const Text('帳簿記入'),
           bottom: const TabBar(
             isScrollable: true, // スクロールを有効化
             tabs: <Widget>[

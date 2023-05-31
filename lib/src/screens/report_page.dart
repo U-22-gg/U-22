@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 
 class ReportPageScreen extends StatelessWidget {
@@ -6,20 +5,40 @@ class ReportPageScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('レポート'),
-        actions: [
-          IconButton(
-            onPressed: () => {},
-            icon: const Icon(
-              Icons.view_headline,
+    return DefaultTabController(
+      initialIndex: 0, // 最初に表示するタブ
+      length: 2, // タブの数
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('レポート'),
+          actions: [
+            IconButton(
+              onPressed: () => {},
+              icon: const Icon(
+                Icons.view_headline,
+              ),
             ),
+          ],
+          bottom: const TabBar(
+            isScrollable: true, // スクロールを有効化
+            tabs: <Widget>[
+              Tab(text: 'マイレポート'),
+              Tab(text: '使い方'),
+            ],
+            labelStyle: TextStyle(fontSize: 15.0),
           ),
-        ],
+        ),
+        body: const TabBarView(
+          children: <Widget>[
+            Center(
+              child: Text('マイレポート', style: TextStyle(fontSize: 32.0)),
+            ),
+            Center(
+              child: Text('使い方', style: TextStyle(fontSize: 32.0)),
+            ),
+          ],
+        ),
       ),
-      body:
-          const Center(child: Text('レポート画面', style: TextStyle(fontSize: 32.0))),
     );
   }
 }
