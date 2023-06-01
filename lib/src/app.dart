@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'screens/login_screen.dart';
 import 'screens/ledger_page.dart';
 import 'screens/report_page.dart';
 import 'screens/make_file.dart';
@@ -28,6 +29,7 @@ class MyStatefulWidget extends StatefulWidget {
 
 class _MyStatefulWidgetState extends State<MyStatefulWidget> {
   static const _screens = [
+    LoginScreen(),
     ReportPageScreen(),
     LedgerPageScreen(),
     MakeFileScreen(),
@@ -50,6 +52,8 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
           currentIndex: _selectedIndex,
           onTap: _onItemTapped,
           items: const <BottomNavigationBarItem>[
+            BottomNavigationBarItem(
+                icon: Icon(Icons.contact_page), label: 'ログイン(仮)'),
             BottomNavigationBarItem(
                 icon: Icon(Icons.contact_page), label: 'レポート'),
             BottomNavigationBarItem(
