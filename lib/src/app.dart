@@ -10,7 +10,7 @@ import 'screens/make_file.dart';
 import 'screens/advanced_setting.dart';
 
 class MyApp extends StatelessWidget {
-  final User? user; // Add this
+  final User? user;
   const MyApp({Key? key, this.user}) : super(key: key);
 
   @override

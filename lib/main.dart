@@ -17,14 +17,11 @@ void main() async {
     runApp(
       ProviderScope(
         child: Consumer(builder: (context, ref, _) {
-          // change watch to ref
-          final asyncValue = ref.watch(
-              authStateProvider); // change watch(authStateProvider) to ref.watch(authStateProvider)
+          final asyncValue = ref.watch(authStateProvider);
           return asyncValue.when(
-            data: (user) => MyApp(user: user), // Pass the user data to MyApp
-            loading: () =>
-                CircularProgressIndicator(), // Show loading indicator while waiting for data
-            error: (_, __) => Text('Something went wrong'), // Handle error
+            data: (user) => MyApp(user: user), // user data を MyApp に渡す
+            loading: () => CircularProgressIndicator(),
+            error: (_, __) => Text('Something went wrong'), // エラーハンドリング
           );
         }),
       ),
