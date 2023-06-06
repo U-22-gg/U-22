@@ -1,13 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class AdvancedSettingScreen extends StatelessWidget {
   const AdvancedSettingScreen({Key? key}) : super(key: key);
+
+  Future<void> _signOut(BuildContext context) async {
+    try {
+      await FirebaseAuth.instance.signOut();
+    } catch (e) {
+      print('Error signing out: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
       initialIndex: 0, // 最初に表示するタブ
-      length: 6, // タブの数
+      length: 7, // タブの数
       child: Scaffold(
         appBar: AppBar(
           title: const Text('詳細設定'),
@@ -28,11 +37,12 @@ class AdvancedSettingScreen extends StatelessWidget {
               Tab(text: '請求書'),
               Tab(text: 'マイデータ'),
               Tab(text: 'サポート'),
+              Tab(text: 'ログアウト'),
             ],
             labelStyle: TextStyle(fontSize: 15.0),
           ),
         ),
-        body: const TabBarView(
+        body: TabBarView(
           children: <Widget>[
             Center(
               child: Text('確定申告', style: TextStyle(fontSize: 32.0)),
@@ -51,6 +61,14 @@ class AdvancedSettingScreen extends StatelessWidget {
             ),
             Center(
               child: Text('サポート', style: TextStyle(fontSize: 32.0)),
+            ),
+            Center(
+              child: ElevatedButton(
+                child: Text('ログアウト', style: TextStyle(fontSize: 32.0)),
+                onPressed: () async {
+                  await _signOut(context);
+                },
+              ),
             ),
           ],
         ),

@@ -19,7 +19,9 @@ class MyApp extends StatelessWidget {
       title: 'Flutter Demo',
       theme:
           ThemeData(primarySwatch: Colors.lightBlue, fontFamily: 'NotoSansJP'),
-      home: user == null ? LoginScreen() : MyStatefulWidget(),
+      home: user == null
+          ? LoginScreen()
+          : MyStatefulWidget(), //ログインが確認できていない場合のみLoginScreenへ遷移する
     );
   }
 }
