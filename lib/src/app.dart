@@ -1,13 +1,17 @@
-import 'package:flutter/material.dart';
+// ignore_for_file: prefer_const_constructors
 
+import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'screens/login_screen.dart';
+
 import 'screens/ledger_page.dart';
 import 'screens/report_page.dart';
 import 'screens/make_file.dart';
 import 'screens/advanced_setting.dart';
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  final User? user; // Add this
+  const MyApp({Key? key, this.user}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -15,7 +19,7 @@ class MyApp extends StatelessWidget {
       title: 'Flutter Demo',
       theme:
           ThemeData(primarySwatch: Colors.lightBlue, fontFamily: 'NotoSansJP'),
-      home: const MyStatefulWidget(),
+      home: user == null ? LoginScreen() : MyStatefulWidget(),
     );
   }
 }
@@ -28,8 +32,7 @@ class MyStatefulWidget extends StatefulWidget {
 }
 
 class _MyStatefulWidgetState extends State<MyStatefulWidget> {
-  static const _screens = [
-    LoginScreen(),
+  static final _screens = [
     ReportPageScreen(),
     LedgerPageScreen(),
     MakeFileScreen(),
@@ -52,8 +55,6 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
           currentIndex: _selectedIndex,
           onTap: _onItemTapped,
           items: const <BottomNavigationBarItem>[
-            BottomNavigationBarItem(
-                icon: Icon(Icons.contact_page), label: 'ログイン(仮)'),
             BottomNavigationBarItem(
                 icon: Icon(Icons.contact_page), label: 'レポート'),
             BottomNavigationBarItem(

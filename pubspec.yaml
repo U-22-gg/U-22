@@ -32,7 +32,9 @@ dependencies:
     sdk: flutter
   firebase_core: ^2.13.1
   firebase_auth: ^4.6.2
+  flutter_riverpod: ^2.3.6
   cupertino_icons: ^1.0.2
+  logger: ^1.1.0
 
 
 dev_dependencies:
