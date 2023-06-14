@@ -121,7 +121,7 @@ class _LedgerPageScreenState extends State<LedgerPageScreen> {
                     DropdownButton<String>(
                       value: _expense,
                       items: [
-                        '仕入',
+                        '仕入あ',
                         '給料賃金',
                         '外注工賃',
                         '減価償却費',
