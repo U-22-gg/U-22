@@ -15,18 +15,19 @@ class _LedgerPageScreenState extends State<LedgerPageScreen> {
   String? _transactionType;
   String? _category;
   String? _expense;
-  String _amount = '';
+  int? _amount;
   DateTime _date = DateTime.now();
 
   Future<void> saveTransaction() async {
     if (_transactionType == null ||
-        _amount.isEmpty ||
+        _amount == null ||
         (_transactionType == 'Income' && _category == null) ||
         (_transactionType == 'Expense' && _expense == null)) {
       // Show some error and return
       print("Incomplete data");
       return;
     }
+
     final uid = _auth.currentUser?.uid ?? '';
     final transactionId = _firestore.collection('transaction').doc().id;
     final summary = _transactionType == 'Income' ? _category : _expense;
@@ -35,6 +36,7 @@ class _LedgerPageScreenState extends State<LedgerPageScreen> {
       'user_id': uid,
       'transaction_id': transactionId,
       'summary': summary,
+      'price': _amount, // saving amount as an int
       'date': _date,
       'category': _transactionType == 'Income' ? _category : null,
       'expenses': _transactionType == 'Expense' ? _expense : null,
@@ -44,8 +46,8 @@ class _LedgerPageScreenState extends State<LedgerPageScreen> {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      initialIndex: 0, // 最初に表示するタブ
-      length: 4, // タブの数
+      initialIndex: 0,
+      length: 4,
       child: Scaffold(
         appBar: AppBar(
           title: const Text('帳簿記入'),
@@ -58,7 +60,7 @@ class _LedgerPageScreenState extends State<LedgerPageScreen> {
             ),
           ],
           bottom: const TabBar(
-            isScrollable: true, // スクロールを有効化
+            isScrollable: true,
             tabs: <Widget>[
               Tab(text: 'スキャン'),
               Tab(text: '手動入力'),
@@ -103,7 +105,7 @@ class _LedgerPageScreenState extends State<LedgerPageScreen> {
                   if (_transactionType == 'Income')
                     DropdownButton<String>(
                       value: _category,
-                      items: ['売上', '雑収入等', '仕入'].map((String value) {
+                      items: ['売上', '雑収入等'].map((String value) {
                         return DropdownMenuItem<String>(
                           value: value,
                           child: Text(value),
@@ -119,6 +121,7 @@ class _LedgerPageScreenState extends State<LedgerPageScreen> {
                     DropdownButton<String>(
                       value: _expense,
                       items: [
+                        '仕入',
                         '給料賃金',
                         '外注工賃',
                         '減価償却費',
@@ -146,7 +149,12 @@ class _LedgerPageScreenState extends State<LedgerPageScreen> {
                     ),
                   TextField(
                     onChanged: (value) {
-                      _amount = value;
+                      int? parsedValue = int.tryParse(value);
+                      if (parsedValue == null) {
+                        print("Amount must be a number");
+                        return;
+                      }
+                      _amount = parsedValue;
                     },
                     keyboardType: TextInputType.number,
                     decoration: InputDecoration(
