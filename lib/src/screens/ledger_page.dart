@@ -36,7 +36,7 @@ class _LedgerPageScreenState extends State<LedgerPageScreen> {
       'user_id': uid,
       'transaction_id': transactionId,
       'summary': summary,
-      'price': _amount, // saving amount as an int
+      'price': _amount,
       'date': _date,
       'category': _transactionType == 'Income' ? _category : null,
       'expenses': _transactionType == 'Expense' ? _expense : null,
@@ -153,7 +153,7 @@ class _LedgerPageScreenState extends State<LedgerPageScreen> {
                       if (parsedValue == null) {
                         print("Amount must be a number");
                         return;
-                      }
+                      } //数字でない文字が入力された場合
                       _amount = parsedValue;
                     },
                     keyboardType: TextInputType.number,
