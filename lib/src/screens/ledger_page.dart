@@ -18,6 +18,7 @@ class _LedgerPageScreenState extends State<LedgerPageScreen> {
   String? _transactionType;
   String? _category;
   String? _expense;
+  String? _memo;
   int? _amount;
   DateTime _date = DateTime.now();
 
@@ -44,7 +45,7 @@ class _LedgerPageScreenState extends State<LedgerPageScreen> {
     await _firestore.collection('transaction').doc(transactionId).set({
       'user_id': uid,
       'transaction_id': transactionId,
-      'summary': summary,
+      'summary': _memo,
       'price': amount,
       'date': _date,
       'category': _transactionType == 'Income' ? _category : null,
@@ -167,7 +168,15 @@ class _LedgerPageScreenState extends State<LedgerPageScreen> {
                     },
                     keyboardType: TextInputType.number,
                     decoration: InputDecoration(
-                      labelText: "Amount",
+                      labelText: "金額",
+                    ),
+                  ),
+                  TextField(
+                    onChanged: (value) {
+                      _memo = value;
+                    },
+                    decoration: InputDecoration(
+                      labelText: "摘要",
                     ),
                   ),
                   IconButton(
