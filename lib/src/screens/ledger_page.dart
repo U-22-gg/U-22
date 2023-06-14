@@ -1,6 +1,9 @@
+// ignore_for_file: prefer_const_constructors
+
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class LedgerPageScreen extends StatefulWidget {
   const LedgerPageScreen({Key? key}) : super(key: key);
@@ -24,7 +27,10 @@ class _LedgerPageScreenState extends State<LedgerPageScreen> {
         (_transactionType == 'Income' && _category == null) ||
         (_transactionType == 'Expense' && _expense == null)) {
       // Show some error and return
-      print("Incomplete data");
+      Fluttertoast.showToast(
+        msg: '未入力の項目があります',
+        toastLength: Toast.LENGTH_LONG,
+      );
       return;
     }
 
@@ -32,11 +38,14 @@ class _LedgerPageScreenState extends State<LedgerPageScreen> {
     final transactionId = _firestore.collection('transaction').doc().id;
     final summary = _transactionType == 'Income' ? _category : _expense;
 
+    //transactionTypeがExpenseなら-を付与する
+    final int amount = _transactionType == 'Expense' ? -_amount! : _amount!;
+
     await _firestore.collection('transaction').doc(transactionId).set({
       'user_id': uid,
       'transaction_id': transactionId,
       'summary': summary,
-      'price': _amount,
+      'price': amount,
       'date': _date,
       'category': _transactionType == 'Income' ? _category : null,
       'expenses': _transactionType == 'Expense' ? _expense : null,
