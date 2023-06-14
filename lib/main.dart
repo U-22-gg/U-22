@@ -1,11 +1,14 @@
 // ignore_for_file: prefer_const_constructors
-
-import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'src/app.dart';
 import 'package:logger/logger.dart';
 import 'providers/auth.dart';
+import 'src/app.dart';
+
+final firestoreProvider = Provider<FirebaseFirestore>(
+    (ref) => FirebaseFirestore.instance); //firestoreのprovider
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

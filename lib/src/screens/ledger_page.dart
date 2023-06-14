@@ -1,7 +1,45 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
-class LedgerPageScreen extends StatelessWidget {
+class LedgerPageScreen extends StatefulWidget {
   const LedgerPageScreen({Key? key}) : super(key: key);
+
+  @override
+  _LedgerPageScreenState createState() => _LedgerPageScreenState();
+}
+
+class _LedgerPageScreenState extends State<LedgerPageScreen> {
+  final _auth = FirebaseAuth.instance;
+  final _firestore = FirebaseFirestore.instance;
+  String? _transactionType;
+  String? _category;
+  String? _expense;
+  String _amount = '';
+  DateTime _date = DateTime.now();
+
+  Future<void> saveTransaction() async {
+    if (_transactionType == null ||
+        _amount.isEmpty ||
+        (_transactionType == 'Income' && _category == null) ||
+        (_transactionType == 'Expense' && _expense == null)) {
+      // Show some error and return
+      print("Incomplete data");
+      return;
+    }
+    final uid = _auth.currentUser?.uid ?? '';
+    final transactionId = _firestore.collection('transaction').doc().id;
+    final summary = _transactionType == 'Income' ? _category : _expense;
+
+    await _firestore.collection('transaction').doc(transactionId).set({
+      'user_id': uid,
+      'transaction_id': transactionId,
+      'summary': summary,
+      'date': _date,
+      'category': _transactionType == 'Income' ? _category : null,
+      'expenses': _transactionType == 'Expense' ? _expense : null,
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,13 +68,113 @@ class LedgerPageScreen extends StatelessWidget {
             labelStyle: TextStyle(fontSize: 15.0),
           ),
         ),
-        body: const TabBarView(
+        body: TabBarView(
           children: <Widget>[
             Center(
               child: Text('レシート読み取り', style: TextStyle(fontSize: 32.0)),
             ),
             Center(
-              child: Text('手動入力', style: TextStyle(fontSize: 32.0)),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      Radio(
+                        value: 'Income',
+                        groupValue: _transactionType,
+                        onChanged: (String? value) {
+                          setState(() {
+                            _transactionType = value;
+                          });
+                        },
+                      ),
+                      Text('Income'),
+                      Radio(
+                        value: 'Expense',
+                        groupValue: _transactionType,
+                        onChanged: (String? value) {
+                          setState(() {
+                            _transactionType = value;
+                          });
+                        },
+                      ),
+                      Text('Expense'),
+                    ],
+                  ),
+                  if (_transactionType == 'Income')
+                    DropdownButton<String>(
+                      value: _category,
+                      items: ['売上', '雑収入等', '仕入'].map((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value),
+                        );
+                      }).toList(),
+                      onChanged: (String? value) {
+                        setState(() {
+                          _category = value;
+                        });
+                      },
+                    ),
+                  if (_transactionType == 'Expense')
+                    DropdownButton<String>(
+                      value: _expense,
+                      items: [
+                        '給料賃金',
+                        '外注工賃',
+                        '減価償却費',
+                        '貸倒金',
+                        '地代家賃',
+                        '利子割引料',
+                        '租税公課',
+                        '水道光熱費',
+                        '旅費交通費',
+                        '通信費',
+                        '修繕費',
+                        '消耗品費',
+                        '雑費'
+                      ].map((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value),
+                        );
+                      }).toList(),
+                      onChanged: (String? value) {
+                        setState(() {
+                          _expense = value;
+                        });
+                      },
+                    ),
+                  TextField(
+                    onChanged: (value) {
+                      _amount = value;
+                    },
+                    keyboardType: TextInputType.number,
+                    decoration: InputDecoration(
+                      labelText: "Amount",
+                    ),
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.calendar_today),
+                    onPressed: () async {
+                      final date = await showDatePicker(
+                        context: context,
+                        initialDate: _date,
+                        firstDate: DateTime(2000),
+                        lastDate: DateTime.now(),
+                      );
+                      if (date != null) {
+                        setState(() {
+                          _date = date;
+                        });
+                      }
+                    },
+                  ),
+                  ElevatedButton(
+                    onPressed: saveTransaction,
+                    child: Text('Save'),
+                  ),
+                ],
+              ),
             ),
             Center(
               child: Text('銀行口座', style: TextStyle(fontSize: 32.0)),

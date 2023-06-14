@@ -34,7 +34,9 @@ dependencies:
   firebase_auth: ^4.6.2
   flutter_riverpod: ^2.3.6
   cupertino_icons: ^1.0.2
+  camera: ^0.10.5+2
   logger: ^1.1.0
+  cloud_firestore: ^4.8.1
 
 
 dev_dependencies:
