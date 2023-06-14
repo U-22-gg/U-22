@@ -37,7 +37,6 @@ class _LedgerPageScreenState extends State<LedgerPageScreen> {
 
     final uid = _auth.currentUser?.uid ?? '';
     final transactionId = _firestore.collection('transaction').doc().id;
-    final summary = _transactionType == 'Income' ? _category : _expense;
 
     //transactionTypeがExpenseなら-を付与する
     final int amount = _transactionType == 'Expense' ? -_amount! : _amount!;
