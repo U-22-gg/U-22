@@ -98,7 +98,7 @@ class _LedgerPageScreenState extends State<LedgerPageScreen> {
                           });
                         },
                       ),
-                      Text('Income'),
+                      Text('収入'),
                       Radio(
                         value: 'Expense',
                         groupValue: _transactionType,
@@ -108,7 +108,7 @@ class _LedgerPageScreenState extends State<LedgerPageScreen> {
                           });
                         },
                       ),
-                      Text('Expense'),
+                      Text('支出'),
                     ],
                   ),
                   if (_transactionType == 'Income')
@@ -196,7 +196,7 @@ class _LedgerPageScreenState extends State<LedgerPageScreen> {
                   ),
                   ElevatedButton(
                     onPressed: saveTransaction,
-                    child: Text('Save'),
+                    child: Text('登録'),
                   ),
                 ],
               ),
