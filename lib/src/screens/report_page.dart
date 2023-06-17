@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_const_constructors
+
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -48,35 +50,63 @@ class ReportPageScreen extends StatelessWidget {
                   }
 
                   final transactions = snapshot.data!.docs;
-                  Map<String, int> totals = {};
+                  Map<String, int> incomeTotals = {};
+                  Map<String, int> expenseTotals = {};
                   int overallTotal = 0;
                   for (var transaction in transactions) {
-                    final category =
-                        transaction['category'] ?? transaction['expenses'];
+                    final category = transaction['category'];
+                    final expenses = transaction['expenses'];
                     final Map<String, dynamic>? data =
                         transaction.data() as Map<String, dynamic>?;
                     final price = data != null && data.containsKey('price')
                         ? transaction.get('price') as int
                         : 0;
-                    if (totals.containsKey(category)) {
-                      totals[category] = (totals[category] ?? 0) + price;
-                    } else {
-                      totals[category] = price;
+
+                    if (category != null) {
+                      incomeTotals[category] =
+                          (incomeTotals[category] ?? 0) + price;
                     }
+
+                    if (expenses != null) {
+                      expenseTotals[expenses] =
+                          (expenseTotals[expenses] ?? 0) + price;
+                    }
+
                     overallTotal += price;
                   }
 
+                  List<Widget> incomeWidgets =
+                      incomeTotals.entries.map((entry) {
+                    return ListTile(
+                      title: Text('${entry.key}: ${entry.value}'),
+                    );
+                  }).toList();
+
+                  List<Widget> expenseWidgets =
+                      expenseTotals.entries.map((entry) {
+                    return ListTile(
+                      title: Text('${entry.key}: ${entry.value}'),
+                    );
+                  }).toList();
+
                   return ListView(
-                    children: totals.entries.map((entry) {
-                      return ListTile(
-                        title: Text('${entry.key}: ${entry.value}'),
-                      );
-                    }).toList()
-                      ..add(
-                        ListTile(
-                          title: Text('合計: $overallTotal'),
-                        ),
+                    children: [
+                      ListTile(
+                          title: Text('収入',
+                              style: TextStyle(
+                                  fontSize: 24, fontWeight: FontWeight.bold))),
+                      ...incomeWidgets,
+                      ListTile(
+                          title: Text('支出',
+                              style: TextStyle(
+                                  fontSize: 24, fontWeight: FontWeight.bold))),
+                      ...expenseWidgets,
+                      ListTile(
+                        title: Text('合計: $overallTotal',
+                            style: TextStyle(
+                                fontSize: 24, fontWeight: FontWeight.bold)),
                       ),
+                    ],
                   );
                 },
               ),
