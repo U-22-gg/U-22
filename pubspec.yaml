@@ -38,6 +38,8 @@ dependencies:
   logger: ^1.1.0
   cloud_firestore: ^4.8.1
   fluttertoast: ^8.0.8
+  permission_handler: ^10.3.0
+  google_mlkit_text_recognition: ^0.8.1
 
 
 dev_dependencies:
