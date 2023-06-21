@@ -1,13 +1,9 @@
 // ignore_for_file: prefer_const_constructors
 
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:camera/camera.dart';
-import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 class LedgerPageScreen extends StatefulWidget {
   const LedgerPageScreen({Key? key}) : super(key: key);
@@ -19,85 +15,12 @@ class LedgerPageScreen extends StatefulWidget {
 class _LedgerPageScreenState extends State<LedgerPageScreen> {
   final _auth = FirebaseAuth.instance;
   final _firestore = FirebaseFirestore.instance;
-  final textRecognizer = TextRecognizer();
-  CameraController? _cameraController;
   String? _transactionType;
   String? _category;
   String? _expense;
   String? _memo;
   int? _amount;
   DateTime _date = DateTime.now();
-
-  void _initCameraController(List<CameraDescription> cameras) {
-    CameraDescription? camera;
-    for (var i = 0; i < cameras.length; i++) {
-      final CameraDescription current = cameras[i];
-      if (current.lensDirection == CameraLensDirection.back) {
-        camera = current;
-        break;
-      }
-    }
-
-    if (camera != null) {
-      _cameraSelected(camera);
-    }
-  }
-
-  Future<void> _cameraSelected(CameraDescription camera) async {
-    _cameraController = CameraController(
-      camera,
-      ResolutionPreset.max,
-      enableAudio: false,
-    );
-
-    await _cameraController!.initialize();
-    await _cameraController!.setFlashMode(FlashMode.off);
-
-    if (!mounted) {
-      return;
-    }
-    setState(() {});
-  }
-
-  Future<void> _requestCameraPermission() async {
-    final status = await Permission.camera.request();
-    if (status == PermissionStatus.granted) {
-      final cameras = await availableCameras();
-      _initCameraController(cameras);
-    }
-  }
-
-  Future<void> _scanImage() async {
-    if (_cameraController == null) return;
-    try {
-      final pictureFile = await _cameraController!.takePicture();
-      final file = File(pictureFile.path);
-      final inputImage = InputImage.fromFile(file);
-      final recognizedText = await textRecognizer.processImage(inputImage);
-      final String totalAmount = parseTotalAmount(recognizedText.text);
-      setState(() {
-        _amount = int.tryParse(totalAmount);
-      });
-    } catch (e) {
-      print(e);
-    }
-  }
-
-  String parseTotalAmount(String text) {
-    RegExp regExp = RegExp(r'合計\s*([\d,]+)', multiLine: true);
-    var match = regExp.firstMatch(text);
-    if (match != null) {
-      return match.group(1)!.replaceAll(',', '');
-    }
-    return '0';
-  }
-
-  @override
-  void dispose() {
-    _cameraController?.dispose();
-    textRecognizer.close();
-    super.dispose();
-  }
 
   Future<void> saveTransaction() async {
     if (_transactionType == null ||
@@ -233,31 +156,19 @@ class _LedgerPageScreenState extends State<LedgerPageScreen> {
                         });
                       },
                     ),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: TextField(
-                          onChanged: (value) {
-                            int? parsedValue = int.tryParse(value);
-                            if (parsedValue == null) {
-                              print("Amount must be a number");
-                              return;
-                            }
-                            _amount = parsedValue;
-                          },
-                          keyboardType: TextInputType.number,
-                          decoration: InputDecoration(
-                            labelText: "金額",
-                          ),
-                        ),
-                      ),
-                      IconButton(
-                        icon: Icon(Icons.camera),
-                        onPressed: () {
-                          _requestCameraPermission();
-                        },
-                      ),
-                    ],
+                  TextField(
+                    onChanged: (value) {
+                      int? parsedValue = int.tryParse(value);
+                      if (parsedValue == null) {
+                        print("Amount must be a number");
+                        return;
+                      } //数字でない文字が入力された場合
+                      _amount = parsedValue;
+                    },
+                    keyboardType: TextInputType.number,
+                    decoration: InputDecoration(
+                      labelText: "金額",
+                    ),
                   ),
                   TextField(
                     onChanged: (value) {
