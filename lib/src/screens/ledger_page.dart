@@ -1,10 +1,12 @@
 // ignore_for_file: prefer_const_constructors
 
 import 'package:flutter/material.dart';
+import 'dart:io';
+import 'package:image_picker/image_picker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-
+import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 class LedgerPageScreen extends StatefulWidget {
   const LedgerPageScreen({Key? key}) : super(key: key);
 
@@ -21,6 +23,31 @@ class _LedgerPageScreenState extends State<LedgerPageScreen> {
   String? _memo;
   int? _amount;
   DateTime _date = DateTime.now();
+  Text? _text;
+  Image? _image;
+
+  Future<void> scan(bool isGallery) async {
+    final pickerFile = await ImagePicker().pickImage(
+        source: isGallery == true ? ImageSource.gallery : ImageSource.camera);
+ 
+    if (pickerFile == null) {
+      return;
+    }
+ 
+    final InputImage imageFile = InputImage.fromFilePath(pickerFile.path);
+    final textRecognizer =
+        TextRecognizer(script: TextRecognitionScript.japanese);
+    final RecognizedText recognizedText =
+        await textRecognizer.processImage(imageFile);
+ 
+    final String text = recognizedText.text;
+ 
+    setState(() {
+      _text = Text(text);
+      _image = Image.file(File(pickerFile.path));
+    });
+    textRecognizer.close();
+  }
 
   Future<void> saveTransaction() async {
     if (_transactionType == null ||
@@ -37,6 +64,7 @@ class _LedgerPageScreenState extends State<LedgerPageScreen> {
 
     final uid = _auth.currentUser?.uid ?? '';
     final transactionId = _firestore.collection('transaction').doc().id;
+    // final summary = _transactionType == 'Income' ? _category : _expense;
 
     //transactionTypeがExpenseなら-を付与する
     final int amount = _transactionType == 'Expense' ? -_amount! : _amount!;
@@ -44,7 +72,7 @@ class _LedgerPageScreenState extends State<LedgerPageScreen> {
     await _firestore.collection('transaction').doc(transactionId).set({
       'user_id': uid,
       'transaction_id': transactionId,
-      'summary': _memo,
+      'memo': _memo,
       'price': amount,
       'date': _date,
       'category': _transactionType == 'Income' ? _category : null,
@@ -82,7 +110,24 @@ class _LedgerPageScreenState extends State<LedgerPageScreen> {
         body: TabBarView(
           children: <Widget>[
             Center(
-              child: Text('レシート読み取り', style: TextStyle(fontSize: 32.0)),
+              child: ListView(
+                // mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  if (_image != null) SafeArea(child: _image!),
+                  _text == null ? Text('No Image') : _text!,
+              
+                FloatingActionButton(
+                    onPressed: () async {
+                      await scan(true);
+                    },
+                    child: const Icon(Icons.photo_album)),
+                FloatingActionButton(
+                    onPressed: () async {
+                      await scan(false);
+                    },
+                    child: const Icon(Icons.photo_camera))
+              ],
+            ),
             ),
             Center(
               child: Column(
@@ -98,7 +143,7 @@ class _LedgerPageScreenState extends State<LedgerPageScreen> {
                           });
                         },
                       ),
-                      Text('収入'),
+                      Text('Income'),
                       Radio(
                         value: 'Expense',
                         groupValue: _transactionType,
@@ -108,7 +153,7 @@ class _LedgerPageScreenState extends State<LedgerPageScreen> {
                           });
                         },
                       ),
-                      Text('支出'),
+                      Text('Expense'),
                     ],
                   ),
                   if (_transactionType == 'Income')
@@ -196,7 +241,7 @@ class _LedgerPageScreenState extends State<LedgerPageScreen> {
                   ),
                   ElevatedButton(
                     onPressed: saveTransaction,
-                    child: Text('登録'),
+                    child: Text('Save'),
                   ),
                 ],
               ),
