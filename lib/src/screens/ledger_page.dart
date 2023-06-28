@@ -5,8 +5,10 @@ import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:image_cropper/image_cropper.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
+
 class LedgerPageScreen extends StatefulWidget {
   const LedgerPageScreen({Key? key}) : super(key: key);
 
@@ -25,28 +27,98 @@ class _LedgerPageScreenState extends State<LedgerPageScreen> {
   DateTime _date = DateTime.now();
   Text? _text;
   Image? _image;
+  String? _items;
+  String? _prices;
+
+  XFile? _pickedFile;
+  CroppedFile? _croppedFile;
 
   Future<void> scan(bool isGallery) async {
-    final pickerFile = await ImagePicker().pickImage(
+    final pickedFile = await ImagePicker().pickImage(
         source: isGallery == true ? ImageSource.gallery : ImageSource.camera);
- 
-    if (pickerFile == null) {
-      return;
+    if (pickedFile != null) {
+      setState(() {
+        _pickedFile = pickedFile;
+      });
     }
- 
-    final InputImage imageFile = InputImage.fromFilePath(pickerFile.path);
+
+    if (_pickedFile != null) {
+      final croppedFile = await ImageCropper().cropImage(
+        sourcePath: _pickedFile!.path,
+        compressFormat: ImageCompressFormat.jpg,
+        compressQuality: 100,
+        uiSettings: [
+          AndroidUiSettings(
+              toolbarTitle: 'Cropper',
+              toolbarColor: Colors.deepOrange,
+              toolbarWidgetColor: Colors.white,
+              initAspectRatio: CropAspectRatioPreset.original,
+              lockAspectRatio: false),
+        ],
+      );
+      if (croppedFile != null) {
+        setState(() {
+          _croppedFile = croppedFile;
+        });
+      }
+    }
+
+    final InputImage imageFile = InputImage.fromFilePath(_croppedFile!.path);
     final textRecognizer =
         TextRecognizer(script: TextRecognitionScript.japanese);
     final RecognizedText recognizedText =
         await textRecognizer.processImage(imageFile);
- 
+
     final String text = recognizedText.text;
- 
+
     setState(() {
       _text = Text(text);
-      _image = Image.file(File(pickerFile.path));
+      _image = Image.file(File(_croppedFile!.path));
     });
     textRecognizer.close();
+
+    int pricearea = text.indexOf('¥');
+    _prices = text.substring(pricearea);
+    _items = text.substring(1, pricearea);
+    List ItemList = _items!.split('\n');
+    List<String> PriceList = _prices!.split('\n');
+    List intList = PriceList.map((element) =>
+            int.tryParse(element.replaceAll(RegExp(r'[^0-9]'), '')))
+        .where((element) => element != null)
+        .toList();
+    int _amount = intList
+        .map((element) => int.parse(element.toString()))
+        .reduce((value, element) => value + element);
+
+    final uid = _auth.currentUser?.uid ?? '';
+    final transactionId = _firestore.collection('transaction').doc().id;
+    // final summary = _transactionType == 'Income' ? _category : _expense;
+
+    //transactionTypeがExpenseなら-を付与する
+    _amount = _transactionType == 'Expense' ? -_amount! : _amount!;
+      final scanId = _firestore.collection('scan').doc().id;
+      await _firestore.collection('scan').doc(scanId).set({
+        'user_id': uid,
+        'scan_id': scanId,
+        'items': _items,
+        'prices': _prices,
+        'date': _date,
+      });
+      await _firestore.collection('transaction').doc(transactionId).set({
+        'user_id': uid,
+        'transaction_id': transactionId,
+        'memo': 'レシートスキャン',
+        'price': _amount,
+        'date': _date,
+        'category': _transactionType == 'Income' ? _category : null,
+        'expenses': _transactionType == 'Expense' ? _expense : null,
+        'scan_id': scanId,
+      });
+      Fluttertoast.showToast(
+        msg: '保存しました',
+        toastLength: Toast.LENGTH_LONG,
+      );
+    
   }
 
   Future<void> saveTransaction() async {
@@ -69,15 +141,36 @@ class _LedgerPageScreenState extends State<LedgerPageScreen> {
     //transactionTypeがExpenseなら-を付与する
     final int amount = _transactionType == 'Expense' ? -_amount! : _amount!;
 
-    await _firestore.collection('transaction').doc(transactionId).set({
-      'user_id': uid,
-      'transaction_id': transactionId,
-      'memo': _memo,
-      'price': amount,
-      'date': _date,
-      'category': _transactionType == 'Income' ? _category : null,
-      'expenses': _transactionType == 'Expense' ? _expense : null,
-    });
+    if (_text != null && _image != null) {
+      final scanId = _firestore.collection('scan').doc().id;
+      await _firestore.collection('scan').doc(scanId).set({
+        'user_id': uid,
+        'scan_id': scanId,
+        'items': _items,
+        'prices': _prices,
+        'date': _date,
+      });
+      await _firestore.collection('transaction').doc(transactionId).set({
+        'user_id': uid,
+        'transaction_id': transactionId,
+        'memo': _memo,
+        'price': amount,
+        'date': _date,
+        'category': _transactionType == 'Income' ? _category : null,
+        'expenses': _transactionType == 'Expense' ? _expense : null,
+        'scan_id': scanId,
+      });
+    } else {
+      await _firestore.collection('transaction').doc(transactionId).set({
+        'user_id': uid,
+        'transaction_id': transactionId,
+        'memo': _memo,
+        'price': amount,
+        'date': _date,
+        'category': _transactionType == 'Income' ? _category : null,
+        'expenses': _transactionType == 'Expense' ? _expense : null,
+      });
+    }
   }
 
   @override
@@ -115,19 +208,19 @@ class _LedgerPageScreenState extends State<LedgerPageScreen> {
                 children: <Widget>[
                   if (_image != null) SafeArea(child: _image!),
                   _text == null ? Text('No Image') : _text!,
-              
-                FloatingActionButton(
-                    onPressed: () async {
-                      await scan(true);
-                    },
-                    child: const Icon(Icons.photo_album)),
-                FloatingActionButton(
-                    onPressed: () async {
-                      await scan(false);
-                    },
-                    child: const Icon(Icons.photo_camera))
-              ],
-            ),
+                  FloatingActionButton(
+                      onPressed: () async {
+                        await scan(true);
+                        saveTransaction();
+                      },
+                      child: const Icon(Icons.photo_album)),
+                  FloatingActionButton(
+                      onPressed: () async {
+                        await scan(false);
+                      },
+                      child: const Icon(Icons.photo_camera))
+                ],
+              ),
             ),
             Center(
               child: Column(
