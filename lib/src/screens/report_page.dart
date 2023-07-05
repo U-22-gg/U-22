@@ -4,8 +4,17 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-class ReportPageScreen extends StatelessWidget {
+class ReportPageScreen extends StatefulWidget {
   const ReportPageScreen({Key? key}) : super(key: key);
+
+  @override
+  _ReportPageScreenState createState() => _ReportPageScreenState();
+}
+
+class _ReportPageScreenState extends State<ReportPageScreen> {
+  String? _month;
+  DateTime? _months;
+  DateTime? _monthe;
 
   @override
   Widget build(BuildContext context) {
@@ -38,77 +47,127 @@ class ReportPageScreen extends StatelessWidget {
         ),
         body: TabBarView(
           children: <Widget>[
-            Center(
-              child: StreamBuilder<QuerySnapshot>(
-                stream: _firestore
-                    .collection('transaction')
-                    .where('user_id', isEqualTo: uid)
-                    .snapshots(),
-                builder: (context, snapshot) {
-                  if (!snapshot.hasData) {
-                    return const CircularProgressIndicator();
-                  }
+            Expanded(
+              child: Column(
+                children: [
+                  DropdownButton(
+                    value: _month,
+                    items: [
+                      '合計',
+                      '1',
+                      '2',
+                      '3',
+                      '4',
+                      '5',
+                      '6',
+                      '7',
+                      '8',
+                      '9',
+                      '10',
+                      '11',
+                      '12',
+                    ].map((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      );
+                    }).toList(),
+                    onChanged: (String? value) {
+                      setState(() {
+                        _month = value;
+                      });
+                      if (_month != '合計') {
+                        var now = DateTime.now();
+                        var year = now.year;
+                         _months = DateTime.parse("${year}-$_month-01");
+                         _monthe = DateTime.parse("${year}-$_month-31");
+                      }
+                    },
+                  ),
+                  Expanded(
+                    child: FutureBuilder<QuerySnapshot>(
+                      future: _firestore
+                          .collection('transaction')
+                          .where(
+                            'user_id',
+                            isEqualTo: uid,
+                          )
+                          .where('start_date',
+                              isGreaterThanOrEqualTo: _months)
+                          .where('end_date', isLessThanOrEqualTo: _monthe)
+                          .get(),
+                      builder: (context, snapshot) {
+                        if (!snapshot.hasData) {
+                          return const CircularProgressIndicator();
+                        }
 
-                  final transactions = snapshot.data!.docs;
-                  Map<String, int> incomeTotals = {};
-                  Map<String, int> expenseTotals = {};
-                  int overallTotal = 0;
-                  for (var transaction in transactions) {
-                    final category = transaction['category'];
-                    final expenses = transaction['expenses'];
-                    final Map<String, dynamic>? data =
-                        transaction.data() as Map<String, dynamic>?;
-                    final price = data != null && data.containsKey('price')
-                        ? transaction.get('price') as int
-                        : 0;
+                        final transactions = snapshot.data!.docs;
+                        Map<String, int> incomeTotals = {};
+                        Map<String, int> expenseTotals = {};
+                        int overallTotal = 0;
+                        for (var transaction in transactions) {
+                          final category = transaction['category'];
+                          final expenses = transaction['expenses'];
+                          final Map<String, dynamic>? data =
+                              transaction.data() as Map<String, dynamic>?;
+                          final price =
+                              data != null && data.containsKey('price')
+                                  ? transaction.get('price') as int
+                                  : 0;
 
-                    if (category != null) {
-                      incomeTotals[category] =
-                          (incomeTotals[category] ?? 0) + price;
-                    }
+                          if (category != null) {
+                            incomeTotals[category] =
+                                (incomeTotals[category] ?? 0) + price;
+                          }
 
-                    if (expenses != null) {
-                      expenseTotals[expenses] =
-                          (expenseTotals[expenses] ?? 0) + price;
-                    }
+                          if (expenses != null) {
+                            expenseTotals[expenses] =
+                                (expenseTotals[expenses] ?? 0) + price;
+                          }
 
-                    overallTotal += price;
-                  }
+                          overallTotal += price;
+                        }
 
-                  List<Widget> incomeWidgets =
-                      incomeTotals.entries.map((entry) {
-                    return ListTile(
-                      title: Text('${entry.key}: ${entry.value}'),
-                    );
-                  }).toList();
+                        List<Widget> incomeWidgets =
+                            incomeTotals.entries.map((entry) {
+                          return ListTile(
+                            title: Text('${entry.key}: ${entry.value}'),
+                          );
+                        }).toList();
 
-                  List<Widget> expenseWidgets =
-                      expenseTotals.entries.map((entry) {
-                    return ListTile(
-                      title: Text('${entry.key}: ${entry.value}'),
-                    );
-                  }).toList();
+                        List<Widget> expenseWidgets =
+                            expenseTotals.entries.map((entry) {
+                          return ListTile(
+                            title: Text('${entry.key}: ${entry.value}'),
+                          );
+                        }).toList();
 
-                  return ListView(
-                    children: [
-                      ListTile(
-                          title: Text('収入',
-                              style: TextStyle(
-                                  fontSize: 24, fontWeight: FontWeight.bold))),
-                      ...incomeWidgets,
-                      ListTile(
-                          title: Text('支出',
-                              style: TextStyle(
-                                  fontSize: 24, fontWeight: FontWeight.bold))),
-                      ...expenseWidgets,
-                      ListTile(
-                        title: Text('合計: $overallTotal',
-                            style: TextStyle(
-                                fontSize: 24, fontWeight: FontWeight.bold)),
-                      ),
-                    ],
-                  );
-                },
+                        return ListView(
+                          children: [
+                            ListTile(
+                                title: Text('収入',
+                                    style: TextStyle(
+                                        fontSize: 24,
+                                        fontWeight: FontWeight.bold))),
+                            ...incomeWidgets,
+                            ListTile(
+                                title: Text('支出',
+                                    style: TextStyle(
+                                        fontSize: 24,
+                                        fontWeight: FontWeight.bold))),
+                            ...expenseWidgets,
+                            ListTile(
+                              title: Text('合計: $overallTotal',
+                                  style: TextStyle(
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.bold)),
+                            ),
+                          ],
+                        );
+                      },
+                    ),
+                  ),
+                ],
               ),
             ),
             Center(

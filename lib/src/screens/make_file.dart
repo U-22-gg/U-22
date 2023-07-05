@@ -28,10 +28,13 @@ class MakeFileScreen extends StatelessWidget {
             labelStyle: TextStyle(fontSize: 15.0),
           ),
         ),
-        body: const TabBarView(
+        body: TabBarView(
           children: <Widget>[
             Center(
-              child: Text('PDF出力', style: TextStyle(fontSize: 32.0)),
+              child: Image.asset('images/document2.png',
+                  width: MediaQuery.of(context).size.width * 1.25,
+                  height: 400,
+                  fit: BoxFit.cover),
             ),
             Center(
               child: Text('使い方', style: TextStyle(fontSize: 32.0)),
