@@ -107,11 +107,11 @@ class _LedgerPageScreenState extends State<LedgerPageScreen> {
       await _firestore.collection('transaction').doc(transactionId).set({
         'user_id': uid,
         'transaction_id': transactionId,
-        'memo': 'レシートスキャン',
+        'memo': '',
         'price': _amount,
         'date': _date,
-        'category': _transactionType == 'Income' ? _category : null,
-        'expenses': _transactionType == 'Expense' ? _expense : null,
+        'category': 'expense',
+        'expenses': 'レシートスキャン',
         'scan_id': scanId,
       });
       Fluttertoast.showToast(

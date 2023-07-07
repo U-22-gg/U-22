@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -53,6 +54,10 @@ class _LoginScreenState extends State<LoginScreen> {
                       print("ユーザー登録しました ${user.email} ,${user.uid}");
                   } catch (e) {
                     print(e);
+                    Fluttertoast.showToast(
+        msg: 'ログインに失敗しました',
+        toastLength: Toast.LENGTH_LONG,
+      );
                   }
                 },
               ),

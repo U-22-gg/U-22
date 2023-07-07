@@ -31,5 +31,6 @@ void main() async {
     );
   }).catchError((err) {
     logger.e('Error initializing Firebase: $err');
+    
   });
 }

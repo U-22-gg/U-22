@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:fl_chart/fl_chart.dart';
 
 class ReportPageScreen extends StatefulWidget {
   const ReportPageScreen({Key? key}) : super(key: key);
@@ -79,8 +80,19 @@ class _ReportPageScreenState extends State<ReportPageScreen> {
                       if (_month != '合計') {
                         var now = DateTime.now();
                         var year = now.year;
-                         _months = DateTime.parse("${year}-$_month-01");
-                         _monthe = DateTime.parse("${year}-$_month-31");
+                        var selectedMonth = int.parse(_month!);
+                        var firstDayOfMonth = DateTime(year, selectedMonth, 1);
+                        var lastDayOfMonth =
+                            DateTime(year, selectedMonth + 1, 0);
+                        setState(() {
+                          _months = firstDayOfMonth;
+                          _monthe = lastDayOfMonth;
+                        });
+                      }else{
+                        var now = DateTime.now();
+                        var year = now.year;
+                        _months = DateTime(year,1,1);
+                        _monthe = DateTime(year,12,31);
                       }
                     },
                   ),
@@ -92,9 +104,7 @@ class _ReportPageScreenState extends State<ReportPageScreen> {
                             'user_id',
                             isEqualTo: uid,
                           )
-                          .where('start_date',
-                              isGreaterThanOrEqualTo: _months)
-                          .where('end_date', isLessThanOrEqualTo: _monthe)
+                          .where('date', isGreaterThanOrEqualTo: _months, isLessThanOrEqualTo: _monthe)
                           .get(),
                       builder: (context, snapshot) {
                         if (!snapshot.hasData) {
@@ -170,7 +180,7 @@ class _ReportPageScreenState extends State<ReportPageScreen> {
                 ],
               ),
             ),
-            Center(
+            Expanded(
               child: Text('使い方', style: TextStyle(fontSize: 32.0)),
             ),
           ],
