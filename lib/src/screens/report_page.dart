@@ -25,7 +25,7 @@ class _ReportPageScreenState extends State<ReportPageScreen> {
 
     return DefaultTabController(
       initialIndex: 0, // 最初に表示するタブ
-      length: 2, // タブの数
+      length: 3, // タブの数
       child: Scaffold(
         appBar: AppBar(
           title: const Text('レポート'),
@@ -41,6 +41,7 @@ class _ReportPageScreenState extends State<ReportPageScreen> {
             isScrollable: true, // スクロールを有効化
             tabs: <Widget>[
               Tab(text: 'マイレポート'),
+              Tab(text: '使い方'),
               Tab(text: '使い方'),
             ],
             labelStyle: TextStyle(fontSize: 15.0),
@@ -88,11 +89,11 @@ class _ReportPageScreenState extends State<ReportPageScreen> {
                           _months = firstDayOfMonth;
                           _monthe = lastDayOfMonth;
                         });
-                      }else{
+                      } else {
                         var now = DateTime.now();
                         var year = now.year;
-                        _months = DateTime(year,1,1);
-                        _monthe = DateTime(year,12,31);
+                        _months = DateTime(year, 1, 1);
+                        _monthe = DateTime(year, 12, 31);
                       }
                     },
                   ),
@@ -104,7 +105,9 @@ class _ReportPageScreenState extends State<ReportPageScreen> {
                             'user_id',
                             isEqualTo: uid,
                           )
-                          .where('date', isGreaterThanOrEqualTo: _months, isLessThanOrEqualTo: _monthe)
+                          .where('date',
+                              isGreaterThanOrEqualTo: _months,
+                              isLessThanOrEqualTo: _monthe)
                           .get(),
                       builder: (context, snapshot) {
                         if (!snapshot.hasData) {
@@ -114,10 +117,11 @@ class _ReportPageScreenState extends State<ReportPageScreen> {
                         final transactions = snapshot.data!.docs;
                         Map<String, int> incomeTotals = {};
                         Map<String, int> expenseTotals = {};
-                        int overallTotal = 0;
+                        double overallTotal = 0;
                         for (var transaction in transactions) {
                           final category = transaction['category'];
                           final expenses = transaction['expenses'];
+
                           final Map<String, dynamic>? data =
                               transaction.data() as Map<String, dynamic>?;
                           final price =
@@ -181,6 +185,93 @@ class _ReportPageScreenState extends State<ReportPageScreen> {
               ),
             ),
             Expanded(
+              child: Column(
+                children: [
+                  Expanded(
+                    child: FutureBuilder<QuerySnapshot>(
+                      future: _firestore
+                          .collection('transaction')
+                          .where(
+                            'user_id',
+                            isEqualTo: uid,
+                          )
+                          .get(),
+                      builder: (context, snapshot) {
+                        if (!snapshot.hasData) {
+                          return const CircularProgressIndicator();
+                        }
+
+                        final transactions = snapshot.data!.docs;
+                        Map<String, int> incomeTotals = {};
+                        Map<String, int> expenseTotals = {};
+                        double overallTotal = 0;
+                        Map<num, num> monthlyTotal = {};
+                        Map<num, num> sumMap = {};
+                        for (var transaction in transactions) {
+                          final category = transaction['category'];
+                          final expenses = transaction['expenses'];
+                          num _price = transaction['price'];
+                          final Map<String, dynamic>? data =
+                              transaction.data() as Map<String, dynamic>?;
+                          final price =
+                              data != null && data.containsKey('price')
+                                  ? transaction.get('price') as int
+                                  : 0;
+
+                          if (category != null) {
+                            incomeTotals[category] =
+                                (incomeTotals[category] ?? 0) + price;
+                          }
+
+                          if (expenses != null) {
+                            expenseTotals[expenses] =
+                                (expenseTotals[expenses] ?? 0) + price;
+                          }
+
+                          DateTime date =
+                              (transaction['date'] as Timestamp).toDate();
+                          int m = date.month;
+                          monthlyTotal[m] = _price;
+                         
+                         
+
+                          monthlyTotal.forEach((key, value) {
+                            if (sumMap.containsKey(key)) {
+                              sumMap[key] = (sumMap[key] ?? 0) + value;
+                            } else {
+                              sumMap[key] = value;
+                            }
+                          });
+
+                          overallTotal += price;
+                        }
+
+
+                        return LineChart(
+                          LineChartData(lineBarsData: [
+                            LineChartBarData(spots: [
+                              FlSpot(1, sumMap[1]?.toDouble() ?? 0),
+                              FlSpot(2, sumMap[2]?.toDouble() ?? 0),
+                              FlSpot(3, sumMap[3]?.toDouble() ?? 0),
+                              FlSpot(4, sumMap[4]?.toDouble() ?? 0),
+                              FlSpot(5, sumMap[5]?.toDouble() ?? 0),
+                              FlSpot(6, sumMap[6]?.toDouble() ?? 0),
+                              FlSpot(7, sumMap[7]?.toDouble() ?? 0),
+                              FlSpot(8, sumMap[8]?.toDouble() ?? 0),
+                              FlSpot(9, sumMap[9]?.toDouble() ?? 0),
+                              FlSpot(10, sumMap[10]?.toDouble() ?? 0),
+                              FlSpot(11, sumMap[11]?.toDouble() ?? 0),
+                              FlSpot(12, sumMap[12]?.toDouble() ?? 0),
+                            ])
+                          ]),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Center(
               child: Text('使い方', style: TextStyle(fontSize: 32.0)),
             ),
           ],
