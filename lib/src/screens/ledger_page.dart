@@ -108,9 +108,9 @@ class _LedgerPageScreenState extends State<LedgerPageScreen> {
         'user_id': uid,
         'transaction_id': transactionId,
         'memo': '',
-        'price': _amount,
+        'price': -_amount,
         'date': _date,
-        'category': 'expense',
+        'category': null,
         'expenses': 'レシートスキャン',
         'scan_id': scanId,
       });

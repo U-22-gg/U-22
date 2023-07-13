@@ -41,7 +41,7 @@ class _ReportPageScreenState extends State<ReportPageScreen> {
             isScrollable: true, // スクロールを有効化
             tabs: <Widget>[
               Tab(text: 'マイレポート'),
-              Tab(text: '使い方'),
+              Tab(text: 'グラフ'),
               Tab(text: '使い方'),
             ],
             labelStyle: TextStyle(fontSize: 15.0),
@@ -204,7 +204,6 @@ class _ReportPageScreenState extends State<ReportPageScreen> {
                         final transactions = snapshot.data!.docs;
                         Map<String, int> incomeTotals = {};
                         Map<String, int> expenseTotals = {};
-                        double overallTotal = 0;
                         Map<num, num> monthlyTotal = {};
                         Map<num, num> sumMap = {};
                         for (var transaction in transactions) {
@@ -243,7 +242,6 @@ class _ReportPageScreenState extends State<ReportPageScreen> {
                             }
                           });
 
-                          overallTotal += price;
                         }
 
 
