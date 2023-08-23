@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fl_chart/fl_chart.dart';
-
+import 'package:collection/collection.dart';
 class ReportPageScreen extends StatefulWidget {
   const ReportPageScreen({Key? key}) : super(key: key);
 
@@ -241,28 +241,63 @@ class _ReportPageScreenState extends State<ReportPageScreen> {
                               sumMap[key] = value;
                             }
                           });
-
                         }
 
 
-                        return LineChart(
-                          LineChartData(lineBarsData: [
-                            LineChartBarData(spots: [
-                              FlSpot(1, sumMap[1]?.toDouble() ?? 0),
-                              FlSpot(2, sumMap[2]?.toDouble() ?? 0),
-                              FlSpot(3, sumMap[3]?.toDouble() ?? 0),
-                              FlSpot(4, sumMap[4]?.toDouble() ?? 0),
-                              FlSpot(5, sumMap[5]?.toDouble() ?? 0),
-                              FlSpot(6, sumMap[6]?.toDouble() ?? 0),
-                              FlSpot(7, sumMap[7]?.toDouble() ?? 0),
-                              FlSpot(8, sumMap[8]?.toDouble() ?? 0),
-                              FlSpot(9, sumMap[9]?.toDouble() ?? 0),
-                              FlSpot(10, sumMap[10]?.toDouble() ?? 0),
-                              FlSpot(11, sumMap[11]?.toDouble() ?? 0),
-                              FlSpot(12, sumMap[12]?.toDouble() ?? 0),
-                            ])
+                        return BarChart(BarChartData(
+                          
+                          maxY: sumMap.values.reduce((value, element) => value > element ? value : element).toDouble()??0,
+                          minY: -(sumMap.values.reduce((value, element) => value > element ? value : element).toDouble()??0),
+                          barGroups: [
+                          BarChartGroupData(x: 1, barRods: [
+                            BarChartRodData(
+                                toY: sumMap[1]?.toDouble() ?? 0, width: 10, color: Colors.amber),
                           ]),
-                        );
+                          BarChartGroupData(x: 2, barRods: [
+                            BarChartRodData(
+                                toY: sumMap[2]?.toDouble() ?? 0, width: 10, color: Colors.amber),
+                          ]),
+                          BarChartGroupData(x: 3, barRods: [
+                            BarChartRodData(
+                                toY: sumMap[3]?.toDouble() ?? 0, width: 10, color: Colors.amber),
+                          ]),
+                          BarChartGroupData(x: 4, barRods: [
+                            BarChartRodData(
+                                toY: sumMap[4]?.toDouble() ?? 0, width: 10, color: Colors.amber),
+                          ]),
+                          BarChartGroupData(x: 5, barRods: [
+                            BarChartRodData(
+                                toY: sumMap[5]?.toDouble() ?? 0, width: 10, color: Colors.amber),
+                          ]),
+                          BarChartGroupData(x: 6, barRods: [
+                            BarChartRodData(
+                                toY: sumMap[6]?.toDouble() ?? 0, width: 10, color: Colors.amber),
+                          ]),
+                          BarChartGroupData(x: 7, barRods: [
+                            BarChartRodData(
+                                toY: sumMap[7]?.toDouble() ?? 0, width: 10, color: Colors.amber),
+                          ]),
+                          BarChartGroupData(x: 8, barRods: [
+                            BarChartRodData(
+                                toY: sumMap[8]?.toDouble() ?? 0, width: 10, color: Colors.amber),
+                          ]),
+                          BarChartGroupData(x: 9, barRods: [
+                            BarChartRodData(
+                                toY: sumMap[9]?.toDouble() ?? 0, width: 10, color: Colors.amber),
+                          ]),
+                          BarChartGroupData(x: 10, barRods: [
+                            BarChartRodData(
+                                toY: sumMap[10]?.toDouble() ?? 0, width: 10, color: Colors.amber),
+                          ]),
+                          BarChartGroupData(x: 11, barRods: [
+                            BarChartRodData(
+                                toY: sumMap[11]?.toDouble() ?? 0, width: 10, color: Colors.amber),
+                          ]),
+                          BarChartGroupData(x: 12, barRods: [
+                            BarChartRodData(
+                                toY: sumMap[12]?.toDouble() ?? 0, width: 10, color: Colors.amber),
+                          ]),
+                        ]));
                       },
                     ),
                   ),
