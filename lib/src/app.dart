@@ -6,7 +6,6 @@ import 'screens/login_screen.dart';
 
 import 'screens/ledger_page.dart';
 import 'screens/report_page.dart';
-import 'screens/make_file.dart';
 import 'screens/advanced_setting.dart';
 
 class MyApp extends StatelessWidget {
@@ -34,10 +33,9 @@ class MyStatefulWidget extends StatefulWidget {
 }
 
 class _MyStatefulWidgetState extends State<MyStatefulWidget> {
-  static final _screens = [
+  static final List<StatefulWidget> _screens = [
     ReportPageScreen(),
     LedgerPageScreen(),
-    MakeFileScreen(),
     AdvancedSettingScreen()
   ];
 
@@ -52,20 +50,26 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: _screens[_selectedIndex],
-        bottomNavigationBar: BottomNavigationBar(
-          currentIndex: _selectedIndex,
-          onTap: _onItemTapped,
-          items: const <BottomNavigationBarItem>[
-            BottomNavigationBarItem(
-                icon: Icon(Icons.contact_page), label: 'レポート'),
-            BottomNavigationBarItem(
-                icon: Icon(Icons.auto_stories), label: '帳簿記入'),
-            BottomNavigationBarItem(
-                icon: Icon(Icons.upload_file), label: '書類作成'),
-            BottomNavigationBarItem(icon: Icon(Icons.settings), label: '詳細設定'),
-          ],
-          type: BottomNavigationBarType.fixed,
-        ));
+      body: _screens[_selectedIndex],
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _selectedIndex,
+        onTap: _onItemTapped,
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.contact_page),
+            label: 'レポート',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.auto_stories),
+            label: '帳簿記入',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.settings),
+            label: '詳細設定',
+          ),
+        ],
+        type: BottomNavigationBarType.fixed,
+      ),
+    );
   }
 }

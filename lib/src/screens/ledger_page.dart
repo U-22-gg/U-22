@@ -177,7 +177,7 @@ class _LedgerPageScreenState extends State<LedgerPageScreen> {
   Widget build(BuildContext context) {
     return DefaultTabController(
       initialIndex: 0,
-      length: 4,
+      length: 2,
       child: Scaffold(
         appBar: AppBar(
           title: const Text('帳簿記入'),
@@ -194,8 +194,6 @@ class _LedgerPageScreenState extends State<LedgerPageScreen> {
             tabs: <Widget>[
               Tab(text: 'スキャン'),
               Tab(text: '手動入力'),
-              Tab(text: '銀行口座'),
-              Tab(text: '使い方'),
             ],
             labelStyle: TextStyle(fontSize: 15.0),
           ),
@@ -339,12 +337,7 @@ class _LedgerPageScreenState extends State<LedgerPageScreen> {
                 ],
               ),
             ),
-            Center(
-              child: Text('銀行口座', style: TextStyle(fontSize: 32.0)),
-            ),
-            Center(
-              child: Text('使い方', style: TextStyle(fontSize: 32.0)),
-            ),
+            
           ],
         ),
       ),

@@ -25,7 +25,7 @@ class _ReportPageScreenState extends State<ReportPageScreen> {
 
     return DefaultTabController(
       initialIndex: 0, // 最初に表示するタブ
-      length: 3, // タブの数
+      length: 2, // タブの数
       child: Scaffold(
         appBar: AppBar(
           title: const Text('レポート'),
@@ -42,7 +42,6 @@ class _ReportPageScreenState extends State<ReportPageScreen> {
             tabs: <Widget>[
               Tab(text: 'マイレポート'),
               Tab(text: 'グラフ'),
-              Tab(text: '使い方'),
             ],
             labelStyle: TextStyle(fontSize: 15.0),
           ),
@@ -304,9 +303,7 @@ class _ReportPageScreenState extends State<ReportPageScreen> {
                 ],
               ),
             ),
-            Center(
-              child: Text('使い方', style: TextStyle(fontSize: 32.0)),
-            ),
+            
           ],
         ),
       ),
