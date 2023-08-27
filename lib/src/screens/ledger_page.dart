@@ -96,36 +96,36 @@ class _LedgerPageScreenState extends State<LedgerPageScreen> {
 
     //transactionTypeがExpenseなら-を付与する
     _amount = _transactionType == 'Expense' ? -_amount! : _amount!;
-      final scanId = _firestore.collection('scan').doc().id;
-      await _firestore.collection('scan').doc(scanId).set({
-        'user_id': uid,
-        'scan_id': scanId,
-        'items': _items,
-        'prices': _prices,
-        'date': _date,
-      });
-      await _firestore.collection('transaction').doc(transactionId).set({
-        'user_id': uid,
-        'transaction_id': transactionId,
-        'memo': '',
-        'price': -_amount,
-        'date': _date,
-        'category': null,
-        'expenses': 'レシートスキャン',
-        'scan_id': scanId,
-      });
-      Fluttertoast.showToast(
-        msg: '保存しました',
-        toastLength: Toast.LENGTH_LONG,
-      );
-    
+    final scanId = _firestore.collection('scan').doc().id;
+    await _firestore.collection('scan').doc(scanId).set({
+      'user_id': uid,
+      'scan_id': scanId,
+      'items': _items,
+      'prices': _prices,
+      'date': _date,
+    });
+    await _firestore.collection('transaction').doc(transactionId).set({
+      'user_id': uid,
+      'transaction_id': transactionId,
+      'memo': '',
+      'price': -_amount,
+      'date': _date,
+      'category': null,
+      'expenses': 'レシートスキャン',
+      'scan_id': scanId,
+    });
+    Fluttertoast.showToast(
+      msg: '保存しました',
+      toastLength: Toast.LENGTH_LONG,
+    );
   }
 
   Future<void> saveTransaction() async {
     if (_transactionType == null ||
         _amount == null ||
         (_transactionType == 'Income' && _category == null) ||
-        (_transactionType == 'Expense' && _expense == null)) {
+        (_transactionType == 'Expense' && _expense == null)
+        ) {
       // Show some error and return
       Fluttertoast.showToast(
         msg: '未入力の項目があります',
@@ -205,18 +205,34 @@ class _LedgerPageScreenState extends State<LedgerPageScreen> {
                 // mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
                   if (_image != null) SafeArea(child: _image!),
-                  _text == null ? Text('No Image') : _text!,
-                  FloatingActionButton(
-                      onPressed: () async {
-                        await scan(true);
-                        saveTransaction();
-                      },
-                      child: const Icon(Icons.photo_album)),
-                  FloatingActionButton(
-                      onPressed: () async {
-                        await scan(false);
-                      },
-                      child: const Icon(Icons.photo_camera))
+                  _text == null ? Text('画像が選択されていません') : _text!,
+                  Container(
+                      width: 50.0,
+                      height: 260.0,
+                      margin: const EdgeInsets.all(20),
+                      child: FloatingActionButton.extended(
+                          onPressed: () async {
+                            await scan(true);
+                            saveTransaction();
+                          },
+                          shape: RoundedRectangleBorder(
+                            borderRadius:
+                                BorderRadius.circular(16.0), // 角丸の半径を設定
+                          ),
+                          label: Text("ギャラリーから選ぶ"))),
+                  Container(
+                      width: 60.0,
+                      height: 260.0,
+                      margin: const EdgeInsets.all(20),
+                      child: FloatingActionButton.extended(
+                          onPressed: () async {
+                            await scan(false);
+                          },
+                          shape: RoundedRectangleBorder(
+                            borderRadius:
+                                BorderRadius.circular(16.0), // 角丸の半径を設定
+                          ),
+                          label: const Text("今から撮影する")))
                 ],
               ),
             ),
@@ -332,12 +348,11 @@ class _LedgerPageScreenState extends State<LedgerPageScreen> {
                   ),
                   ElevatedButton(
                     onPressed: saveTransaction,
-                    child: Text('Save'),
+                    child: Text('保存'),
                   ),
                 ],
               ),
             ),
-            
           ],
         ),
       ),
